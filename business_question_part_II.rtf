@@ -27,6 +27,6 @@ Left join order_products on products.product_id=order_products.product_id\
 Left join departments on products.department_id=departments.department_id\
 Group by departments.department,aisle\
 Order by best_sell DESC;\
-select aisle,max(best_sell) over (partition by department) as top_aisle\
+select aisle,department,best_sell,RANK () over partition by department as top_aisle order by best_sell DESC\
 from best_aisle\
-group by department,aisle,best_sell;}
+order by top_aisle DESC;}
