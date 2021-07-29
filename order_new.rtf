@@ -21,12 +21,12 @@ SELECT * FROM (select order_products.order_id,product_id,user_id\
 \cf3 Join min(order_number) to joined table **check\cf2 \
 Create table new As\
 SELECT *\
-FROM (SELECT new.*\
+FROM (SELECT joined_table.*,first_order\
       FROM Joined_table\
-      Left JOIN (SELECT joined_table.product_id,joined_table.user_id,joined_table.order_id,min(joined_table.order_id) AS first_order\
+      Left JOIN (SELECT joined_table.product_id,joined_table.user_id,min(joined_table.order_id) AS first_order\
                  FROM joined_table\
-                 GROUP BY joined_table.product_id,joined_table.user_id,joined_table.order_id) new \
-      ON joined_table.order_id = new.order_id AND joined_table.product_id =new.product_id AND joined_table.user_id = new.user_id);\
+                 GROUP BY joined_table.product_id,joined_table.user_id) new \
+      ON joined_table.order_id = new.first_order AND joined_table.product_id =new.product_id AND joined_table.user_id = new.user_id);\
 \
 \cf3 create a new column to the table and call it order_product_new with 1 and 0 values\cf2 \
 create table order_product_new as \
