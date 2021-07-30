@@ -33,6 +33,7 @@ create table order_product_new as \
 select * \
 from (SELECT new.order_id,new.product_id,\
       (CASE WHEN new.order_id=new.first_order THEN 0\
-       WHEN new.order_id<>new.first_order THEN 1 END) as reordered\
+       ELSE 1 END) as reordered\
       FROM new);\
+                  \
                                                                 }
