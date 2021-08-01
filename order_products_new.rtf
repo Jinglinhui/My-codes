@@ -12,8 +12,8 @@ Attempt:\
 \cf3 Join user_id onto order_product table\cf2 \
 CREATE TABLE joined_table AS\
 SELECT * FROM (select order_products.order_number,product_id,user_id\
-         from orders\
-         join order_products\
+         from orders_products\
+         join orders\
          on order_products.order_id=orders.order_id);\
 \
 \cf3 Join min(order_number) to joined table **check\cf2 \
