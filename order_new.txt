@@ -1,0 +1,28 @@
+Create view max_orders as
+SELECT  orders.user_id, max(orders.order_number) AS latest_order
+FROM orders
+GROUP BY orders.user_id;
+
+Create table Prior as
+select prior.*,(CASE WHEN prior.latest_order is Null THEN 'Prior'
+       ELSE 'NotPr' END) as eval_set
+from (select orders.*,latest_order
+      From orders
+      left join max_orders
+      On max_orders.user_id=orders.user_id AND max_orders.latest_order=orders.order_number) prior
+
+
+Create Table Test_Train as 
+select latest.*,(case when latest.order_id=d.order_id Then'Train' Else 'Test' END) as eval_set
+from (select prior.order_id,prior.user_id,prior.order_number,prior.order_dow,prior.order_hour_of_day,prior.days_since_prior_order
+from prior
+where eval_set='NotPr’) latest
+left join (select distinct(order_products.order_id)
+           from order_products
+           group by order_products.order_id) d 
+           on latest.order_id=d.order_id;
+
+Create table order_new as
+select Test_train.* from test_train
+Union all
+select prior.* from prior where eval_set='Prior';
