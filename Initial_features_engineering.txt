@@ -11,9 +11,9 @@ select user_id,max(order_number) as max_order_number,sum(days_since_prior_order)
 from order_new
 group by user_id;
 
-select user_id,count(product_id) as total_products,count(distinct product_id) as total_distinct_product,count(reordered)/count(order_number) as user_reorder_ratio
+CREATE TABLE user_features_2 WITH (external_location = 's3://imba-jinglinhui/features/user_features_2/', format = 'parquet') as
+select user_id,count(product_id) as total_products,count(distinct product_id) as total_distinct_product,sum(case when reordered=1 then 1 else 0 end)/cast(sum(case when order_number>1 then 1 else 0 end) as double) as user_reorder_ratio
 from order_products_prior
-where reordered=1 and order_number >1
 group by user_id;
 
 CREATE TABLE up_features WITH (external_location = 's3://imba-jinglinhui/features/up_featutres/', format = 'parquet') as
@@ -21,6 +21,7 @@ select user_id,product_id,count(distinct order_id)as total_orders,max(order_numb
 from order_products_prior
 group by user_id,product_id;
 
+CREATE TABLE prd_features WITH (external_location = 's3://imba-jinglinhui/features/prd_features/', format = 'parquet') as
 select user_id,product_id,count(reordered) as total_reordered,sum(reordered) as sum_reordered,Sum(CASE WHEN product_seq_time = 1 THEN 1 ELSE 0 END) as rank_1,Sum(CASE WHEN product_seq_time = 2 THEN 1 ELSE 0 END) as rank_2
 from (SELECT user_id,product_id,reordered,rank() OVER (PARTITION BY user_id,product_id ORDER BY order_number) as product_seq_time
       from order_products_prior)
